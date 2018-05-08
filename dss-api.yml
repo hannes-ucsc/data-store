@@ -748,7 +748,7 @@ paths:
                     name:
                       description: Name of the file.
                       type: string
-                      pattern: "^[^/\\\\]+$"
+                      pattern: "^[^/\\\\:*?\\\"<>|]+$"
                     indexed:
                       description: True iff this file should be indexed.
                       type: boolean
@@ -1026,6 +1026,7 @@ definitions:
       name:
         type: string
         description: Filename (unique within a bundle)
+        pattern: "^[^/\\\\:*?\\\"<>|]+$"
       versions:
         type: array
         description: List of versions
@@ -1042,6 +1043,7 @@ definitions:
       name:
         type: string
         description: Filename (unique within a bundle)
+        pattern: "^[^/\\\\:*?\\\"<>|]+$"
       content-type:
         type: string
         description: Content-type of the file.

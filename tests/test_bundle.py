@@ -438,6 +438,51 @@ class TestBundleApi(unittest.TestCase, DSSAssertMixin, DSSUploadMixin):
             headers=get_auth_header(authorized=authorized),
         )
 
+    def test_bundle_illegal_filenames(self):
+        self._test_bundle_illegal_filenames("aws", self.s3_test_fixtures_bucket)
+        self._test_bundle_illegal_filenames("gcp", self.gs_test_fixtures_bucket)
+
+    def _test_bundle_illegal_filenames(self, replica, fixtures_bucket):
+        if replica == "aws":
+            schema = "s3"
+        elif replica == "gcp":
+            schema = "gs"
+
+        file_uuid = str(uuid.uuid4())
+        bundle_uuid = str(uuid.uuid4())
+        response = self.assertPutResponse(
+            "/v1/files/" + file_uuid,
+            requests.codes.created,
+            json_request_body=dict(
+                source_url=f"{schema}://{fixtures_bucket}/test_good_source_data/0",
+                bundle_uuid=bundle_uuid,
+                creator_uid=4321,
+                content_type="text/html",
+            ),
+        )
+        version = response[2]['version']
+
+        url = str(UrlBuilder()
+                  .set(path="/v1/bundles/" + bundle_uuid)
+                  .add_query("replica", replica))
+
+        for illegal_character in "/\\:*\"?<>|":
+            self.assertPutResponse(
+                url,
+                requests.codes.bad_request,
+                json_request_body=dict(
+                    files=[
+                        dict(
+                            uuid=file_uuid,
+                            version=version,
+                            name="a{}a".format(illegal_character),
+                            indexed=False,
+                        ),
+                    ],
+                    creator_uid=12345,
+                ),
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
