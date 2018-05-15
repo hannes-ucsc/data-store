@@ -717,7 +717,7 @@ paths:
         - name: version
           in: query
           description: Timestamp of bundle creation in RFC3339.
-          required: false
+          required: true
           type: string
           format: date-time
         - name: replica
