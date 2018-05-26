@@ -1,12 +1,14 @@
 build_ami:
-  base_ami_product: com.ubuntu.cloud:server:16.04:amd64
+  base_ami_product: com.ubuntu.cloud:server:18.04:amd64
   rootfs_skel_dirs:
     $append: rootfs.skel
   packages:
     $remove: docker.io
-  commands:
     $extend:
-      - "add-apt-repository --yes ppa:deadsnakes/ppa"
-      - "apt-get update"
-      - "apt-get install --yes python3.6-dev"
-      - "pip install --upgrade pip virtualenv"
+      - jenkins
+      - openjdk-8-jre-headless
+  cloud_config_data:
+    apt_sources:
+      - source: "deb https://pkg.jenkins.io/debian-stable binary/"
+        filename: jenkins.list
+        keyid: E12A9B7D32F2D50582E6
